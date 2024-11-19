@@ -19,7 +19,6 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/productsInventory" element={<ProductsInventory />} />
-      
         <Route path="/editProducts" element={<EditProducts />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="*" element={<WarningPage />} />

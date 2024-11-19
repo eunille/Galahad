@@ -5,6 +5,7 @@ interface PurchaseProps {
   onClose: () => void;
   onRenew: () => void;
   onConfirm?: () => void; // Make onConfirm optional
+  memberData: any;
 }
 
 interface Product {

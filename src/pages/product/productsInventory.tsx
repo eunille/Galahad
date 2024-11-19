@@ -1,16 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "@/components/ui/sidebar";
 import EditProducts from "@/components/products/editProducts"; // Import the modal component
+import dataFetch from "@/services/dataService";
 
 const ProductsInventory = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [products, setProducts] = useState<{ name: string; price: number; imgSrc: string }[]>([]);
 
   // Sample product and service data
-  const products = [
-    { name: "Creatine", price: 25, imgSrc: "https://via.placeholder.com/150" },
-    { name: "Mass Gainer", price: 30, imgSrc: "https://via.placeholder.com/150" },
-    { name: "Amino", price: 20, imgSrc: "https://via.placeholder.com/150" },
-  ];
+  // const products = [
+  //   { name: "Creatine", price: 25, imgSrc: "https://via.placeholder.com/150" },
+  //   { name: "Mass Gainer", price: 30, imgSrc: "https://via.placeholder.com/150" },
+  //   { name: "Amino", price: 20, imgSrc: "https://via.placeholder.com/150" },
+  // ];
 
   const services = [
     { name: "Treadmill", price: 562, imgSrc: "https://via.placeholder.com/150" },
@@ -25,6 +27,30 @@ const ProductsInventory = () => {
   // Function to close the modal
   const closeModal = () => {
     setIsModalOpen(false);
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("Token not found in local storage.");
+      return;
+    }
+    getProducts(token);
+  }
+  , []);
+
+  // function to get products
+  const getProducts = async (token: string) => {
+    const url = "products/";
+    const method = "GET";
+  
+    try {
+      const response = await dataFetch(url, method, {}, token);
+      console.log(response);
+      setProducts(response);
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
+    }
   };
 
   return (

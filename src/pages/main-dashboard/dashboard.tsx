@@ -1,5 +1,5 @@
 // src/pages/dashboard/Dashboard.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaFilter, FaUserPlus, FaFileExport, FaEye } from "react-icons/fa";
 import Sidebar from "@/components/ui/sidebar";
 import MemberRegistration from "@/components/membership/membershipRegistration";
@@ -7,6 +7,7 @@ import Receipt from "@/components/membership/membershipReceipt";
 import Purchase from "@/components/purchase/purchase";
 import MemberInformation from "@/components/membership/memberInformation";
 import UpdateMembership from "@/components/membership/updateMembership"; 
+import dataFetch from "@/services/dataService";
 
 const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -15,6 +16,7 @@ const Dashboard = () => {
   const [showPurchase, setShowPurchase] = useState(false);
   const [showMemberInfo, setShowMemberInfo] = useState(false);
   const [showUpdateMembership, setShowUpdateMembership] = useState(false);
+  const [members, setmembers] = useState([]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -68,6 +70,29 @@ const Dashboard = () => {
   const handleUpdateMembershipConfirm = () => {
     setShowUpdateMembership(false);
     setShowReceipt(true); 
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("Token not found in local storage.");
+      return;
+    }
+    getmembers(token);
+  }, []);
+
+  // fetch members
+  const getmembers = async (token: string) => {
+    const url = "members/";
+    const method = "GET";
+
+    try {
+      const response = await dataFetch(url, method, {}, token);
+      console.log(response);
+      setmembers(response);
+    } catch (error) {
+      console.error("Failed to fetch members:", error);
+    }
   };
 
   const styles = {
@@ -135,11 +160,11 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {Array.from({ length: 7 }).map((_, index) => (
+                {members.map((member: any, index: number) => (
                   <tr key={index} className={styles.tableRow}>
-                    <td className={`${styles.tableCell} font-medium text-gray-900 whitespace-nowrap`}>4907</td>
-                    <td className={styles.tableCell}>Firstname</td>
-                    <td className={styles.tableCell}>Lastname</td>
+                    <td className={`${styles.tableCell} font-medium text-gray-900 whitespace-nowrap`}>{member.id}</td>
+                    <td className={styles.tableCell}>{member.first_name}</td>
+                    <td className={styles.tableCell}>{member.last_name}</td>
                     <td className={styles.tableCell}>
                       <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs font-semibold">
                         Monthly
@@ -173,14 +198,14 @@ const Dashboard = () => {
           <MemberRegistration onClose={closeModal} onConfirm={handleConfirmRegistration} />
         )}
 
-        {showReceipt && <Receipt onClose={() => setShowReceipt(false)} />}
+        {showReceipt && <Receipt onClose={() => setShowReceipt(false)} memberData={members} />}
 
         {showPurchase && (
           <Purchase onClose={closePurchaseModal} onRenew={openUpdateMembershipModal} />
         )}
 
         {showMemberInfo && (
-          <MemberInformation onClose={closeMemberInfoModal} onRenew={openUpdateMembershipModal} />
+          <MemberInformation onClose={closeMemberInfoModal} members={members} />
         )}
 
         {showUpdateMembership && (
