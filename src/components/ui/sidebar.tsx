@@ -97,6 +97,23 @@ const Sidebar = () => {
                 <span className="ms-3">Pricing</span>
               </Link>
             </li>
+            <li>
+              <Link
+                to="/login"
+                className="flex items-center p-3 text-gray-800 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                <svg
+                  className="w-6 h-6 text-gray-500 transition duration-75"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M20 6H4C3.44772 6 3 6.44772 3 7V20C3 20.5523 3.44772 21 4 21H20C20.5523 21 21 20.5523 21 20V7C21 6.44772 20.5523 6 20 6ZM19 19H5V8H19V19Z" />
+                </svg>
+                <span className="ms-3">Login</span>
+              </Link>
+            </li>
           </ul>
         </div>
       </aside>

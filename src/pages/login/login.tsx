@@ -1,6 +1,37 @@
+import dataFetch from "@/services/dataService";
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const [username, setUsername] = React.useState("");
+  const [password, setPassword] = React.useState("");
+
+const navigate = useNavigate();
+
+// login admin
+const loginAdmin = async () => {
+  const params = {
+    username,
+    password,
+  };
+  const url = "auth/jwt/create/";
+  const method = "POST";
+  try {
+    const response = await dataFetch(url, method, params,);
+    navigate("/dashboard");
+    console.log(params);
+    console.log(url);
+    console.log(method);
+    localStorage.setItem("token", response.access);
+    console.log(response.access);
+  } catch (error) {
+    console.log();
+    console.log(params);
+    console.log(url);
+    console.log(method);
+  }
+};
+
   return (
     <div className="font-[sans-serif] bg-gradient-to-r from-black via-gray-800 to-gray-900 text-gray-800">
       <div className="min-h-screen flex flex-col items-center justify-center lg:p-6 p-4">
@@ -26,11 +57,13 @@ const Login = () => {
             <h3 className="text-3xl font-extrabold mb-8 text-gray-800">Sign in</h3>
 
             <div className="relative">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
               <input
-                name="email"
-                type="email"
-                autoComplete="email"
+                name="username"
+                type="username"
+                autoComplete="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
                 className="mt-1 bg-gray-100 focus:bg-transparent w-full text-sm px-4 py-3.5 rounded-md outline-gray-800 border-2 border-gray-300 focus:border-yellow-400 transition-colors"
                 placeholder="Enter your email"
@@ -44,6 +77,8 @@ const Login = () => {
                 name="password"
                 type="password"
                 autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 className="mt-1 bg-gray-100 border-2 border-gray-300 focus:bg-transparent w-full text-sm px-4 py-3.5 rounded-md outline-gray-800 focus:border-yellow-400 transition-colors"
                 placeholder="Enter your password"
@@ -56,6 +91,7 @@ const Login = () => {
             <div>
               <button
                 type="button"
+                onClick={loginAdmin}
                 className="w-full shadow-xl py-3 px-6 text-sm font-semibold rounded-md text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none border-2 border-black transition-colors"
               >
                 Log in

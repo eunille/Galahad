@@ -2,6 +2,8 @@ import React, { useState } from "react";
 
 interface MemberInformationProps {
   onClose: () => void;
+
+  onConfirm: (data: any) => void;
 }
 
 const MemberInformation: React.FC<MemberInformationProps> = ({ onClose }) => {
