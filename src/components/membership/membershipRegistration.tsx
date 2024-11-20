@@ -135,9 +135,9 @@ const MemberRegistration: React.FC<MemberRegistrationProps> = ({ onClose, onConf
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
               required
             >
-              <option disabled selected>Select Gender</option>
-              <option>Male</option>
-              <option>Female</option>
+              <option value="" disabled>Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>    
             </select>
           </div>
 
@@ -182,8 +182,6 @@ const MemberRegistration: React.FC<MemberRegistrationProps> = ({ onClose, onConf
           </div>
         </form>
       </div>
-      <Receipt onOpen = {} 
-      members={membership}/>
     </div>
 
   );
