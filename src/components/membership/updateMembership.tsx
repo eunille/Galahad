@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface UpdateMembershipProps {
-  onClose: () => void;
+  onClose: () => void;  
   onConfirm: () => void; // Add this line
 }
 
