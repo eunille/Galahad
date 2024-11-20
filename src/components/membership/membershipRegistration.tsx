@@ -182,8 +182,7 @@ const MemberRegistration: React.FC<MemberRegistrationProps> = ({ onClose, onConf
           </div>
         </form>
       </div>
-      <Receipt onOpen = {} 
-      members={membership}/>
+     
     </div>
 
   );
