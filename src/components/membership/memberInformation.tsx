@@ -1,30 +1,53 @@
+import Member from "@/models/member.d";
 import React, { useState } from "react";
 
 interface MemberInformationProps {
   onClose: () => void;
-
   onConfirm: (data: any) => void;
+  selectedMemberData: Member;
 }
 
-const MemberInformation: React.FC<MemberInformationProps> = ({ onClose }) => {
+const MemberInformation: React.FC<MemberInformationProps> = ({
+  onClose,
+  onConfirm,
+  selectedMemberData,
+}) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [memberData, setMemberData] = useState({
-    firstName: "David",
-    lastName: "Juan",
-    contactNumber: "+63",
-    emergencyNumber: "+63",
-    userID: "4907",
-    gender: "Male",
-    membership: "Monthly",
-    status: "Active",
-    birthday: "1990-01-01"
-  });
-
+  console.log(selectedMemberData);
+  //   const [member, setMemberData] = useState({
+  //     firstName: "David",
+  //     lastName: "Juan",
+  //     contactNumber: "+63",
+  //     emergencyNumber: "+63",
+  //     userID: "4907",
+  //     gender: "Male",
+  //     membership: "Monthly",
+  //     status: "Active",
+  //     birthday: "1990-01-01",
+  //   })
+  // ;
   const handleEdit = () => setIsEditing(!isEditing);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setMemberData((prevData) => ({ ...prevData, [name]: value }));
+    // const { name, value } = e.target;
+    // setMemberData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const checkEligibility = (registration_date: string) => {
+    const currDate = new Date();
+    const regDate = new Date(registration_date);
+
+    if (currDate.getFullYear() - regDate.getFullYear() >= 1) {
+      return "Active";
+    } else {
+      return "Inactive";
+    }
+  };
+
+  const handleSave = () => {
+    // Call onConfirm with the edited data when saving
+    onConfirm(selectedMemberData);
+    setIsEditing(false); // Exit edit mode
   };
 
   return (
@@ -42,13 +65,13 @@ const MemberInformation: React.FC<MemberInformationProps> = ({ onClose }) => {
             {isEditing ? (
               <input
                 name="firstName"
-                value={memberData.firstName}
+                value={selectedMemberData.first_name}
                 onChange={handleChange}
                 className="w-full rounded-md border-gray-300 shadow-sm"
               />
             ) : (
               <span className="block p-2 border rounded-md">
-                {memberData.firstName}
+                {selectedMemberData.first_name}
               </span>
             )}
           </div>
@@ -60,13 +83,13 @@ const MemberInformation: React.FC<MemberInformationProps> = ({ onClose }) => {
             {isEditing ? (
               <input
                 name="lastName"
-                value={memberData.lastName}
+                value={selectedMemberData.last_name}
                 onChange={handleChange}
                 className="w-full rounded-md border-gray-300 shadow-sm"
               />
             ) : (
               <span className="block p-2 border rounded-md">
-                {memberData.lastName}
+                {selectedMemberData.last_name}
               </span>
             )}
           </div>
@@ -78,13 +101,13 @@ const MemberInformation: React.FC<MemberInformationProps> = ({ onClose }) => {
             {isEditing ? (
               <input
                 name="contactNumber"
-                value={memberData.contactNumber}
+                value={selectedMemberData.contact}
                 onChange={handleChange}
                 className="w-full rounded-md border-gray-300 shadow-sm"
               />
             ) : (
               <span className="block p-2 border rounded-md">
-                {memberData.contactNumber}
+                {selectedMemberData.contact}
               </span>
             )}
           </div>
@@ -96,13 +119,13 @@ const MemberInformation: React.FC<MemberInformationProps> = ({ onClose }) => {
             {isEditing ? (
               <input
                 name="emergencyNumber"
-                value={memberData.emergencyNumber}
+                value={selectedMemberData.emergency_contact}
                 onChange={handleChange}
                 className="w-full rounded-md border-gray-300 shadow-sm"
               />
             ) : (
               <span className="block p-2 border rounded-md">
-                {memberData.emergencyNumber}
+                {selectedMemberData.emergency_contact}
               </span>
             )}
           </div>
@@ -112,7 +135,7 @@ const MemberInformation: React.FC<MemberInformationProps> = ({ onClose }) => {
               User ID
             </label>
             <span className="block p-2 border rounded-md">
-              {memberData.userID}
+              {selectedMemberData.membership}
             </span>
           </div>
 
@@ -121,7 +144,7 @@ const MemberInformation: React.FC<MemberInformationProps> = ({ onClose }) => {
               Gender
             </label>
             <span className="block p-2 border rounded-md">
-              {memberData.gender}
+              {selectedMemberData.gender}
             </span>
           </div>
 
@@ -131,7 +154,7 @@ const MemberInformation: React.FC<MemberInformationProps> = ({ onClose }) => {
                 Birthday
               </label>
               <span className="block p-2 border rounded-md">
-                {memberData.birthday}
+                {selectedMemberData.birth_date}
               </span>
             </div>
 
@@ -140,7 +163,7 @@ const MemberInformation: React.FC<MemberInformationProps> = ({ onClose }) => {
                 Membership
               </label>
               <span className="block p-2 border rounded-md">
-                {memberData.membership}
+                {selectedMemberData.membership === 1 ? "Monthly" : "Daily"}
               </span>
             </div>
           </div>
@@ -152,20 +175,19 @@ const MemberInformation: React.FC<MemberInformationProps> = ({ onClose }) => {
               </label>
               <span
                 className={`block p-2 border rounded-md ${
-                  memberData.status === "Active"
+                  checkEligibility(selectedMemberData.registered_at) ===
+                  "Active"
                     ? "text-green-600"
                     : "text-red-600"
                 }`}
-              >
-                {memberData.status}
-              </span>
+              ></span>
             </div>
           </div>
         </div>
 
         <div className="flex justify-center mt-6 space-x-32">
           <button
-            onClick={handleEdit}
+            onClick={isEditing ? handleSave : handleEdit}
             className="px-6 py-2 w-32 text-black bg-[#FCD301] rounded-md shadow-md border-2 border-black"
           >
             {isEditing ? "Save" : "Edit"}

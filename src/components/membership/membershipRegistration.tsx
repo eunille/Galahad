@@ -5,16 +5,23 @@ import Receipt from "./membershipReceipt";
 interface MemberRegistrationProps {
   onClose: () => void;
   onConfirm: (memberData: any) => void; // Pass memberData as a parameter to parent
+  
 }
 
-const MemberRegistration: React.FC<MemberRegistrationProps> = ({ onClose, onConfirm }) => {
+
+
+const MemberRegistration: React.FC<MemberRegistrationProps> = ({
+  onClose,
+  onConfirm,
+}) => {
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
   const [birth_date, setBirthday] = useState("");
   const [gender, setGender] = useState("");
   const [contact, setContactNumber] = useState("");
   const [emergency_contact, setEmergencyNumber] = useState("");
-  const [membership, setMembershipType] = useState("");
+  const [membership, setMembership] = useState("Monthly");
+  const [showReceipt, setShowReceipt] = useState(false);
 
   const params = {
     first_name,
@@ -24,7 +31,10 @@ const MemberRegistration: React.FC<MemberRegistrationProps> = ({ onClose, onConf
     contact,
     emergency_contact,
     membership,
+    registered_at: "2021-10-10",
   };
+
+  
 
   const createMember = async () => {
     try {
@@ -35,36 +45,46 @@ const MemberRegistration: React.FC<MemberRegistrationProps> = ({ onClose, onConf
         return;
       }
 
-      // Send the data to the API
       const url = "members/";
       const method = "POST";
-      const response = await dataFetch(url, method, params, token);
-      console.log(response);
-
-      // Pass the data to the parent component for the receipt
-      onConfirm({
-        first_name,
-        last_name,
-        birth_date,
-        gender,
-        contact,
-        emergency_contact,
-        membership,
-      });
-    } catch (error) {
-      console.log(error);
       console.log(params);
+      const response = await dataFetch(url, method, params, token);
+
+      if (response) {
+        onConfirm({
+          id: response.id, // Assuming response contains the new member's ID
+          first_name,
+          last_name,
+          membership,
+        });
+
+        // Reset form and close modal
+        setFirstName("");
+        setLastName("");
+        setBirthday("");
+        setGender("");
+        setContactNumber("");
+        setEmergencyNumber("");
+        setMembership("");
+        onClose();
+      }
+    } catch (error) {
+      console.error("Error creating member:", error);
     }
   };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg relative">
-        <h2 className="text-2xl font-semibold mb-6 text-center">New Member Registration</h2>
+        <h2 className="text-2xl font-semibold mb-6 text-center">
+          New Member Registration
+        </h2>
         <form className="grid grid-cols-2 gap-4">
           {/* First Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">First name</label>
+            <label className="block text-sm font-medium text-gray-700">
+              First name
+            </label>
             <input
               type="text"
               placeholder="Max"
@@ -77,7 +97,9 @@ const MemberRegistration: React.FC<MemberRegistrationProps> = ({ onClose, onConf
 
           {/* Last Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Last name</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Last name
+            </label>
             <input
               type="text"
               placeholder="Juan"
@@ -90,7 +112,9 @@ const MemberRegistration: React.FC<MemberRegistrationProps> = ({ onClose, onConf
 
           {/* Contact Number */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Contact Number</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Contact Number
+            </label>
             <input
               type="text"
               placeholder="+63"
@@ -103,7 +127,9 @@ const MemberRegistration: React.FC<MemberRegistrationProps> = ({ onClose, onConf
 
           {/* Emergency Number */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Emergency Number</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Emergency Number
+            </label>
             <input
               type="text"
               placeholder="+63"
@@ -116,7 +142,9 @@ const MemberRegistration: React.FC<MemberRegistrationProps> = ({ onClose, onConf
 
           {/* Birthday */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Birthday</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Birthday
+            </label>
             <input
               type="date"
               value={birth_date}
@@ -128,34 +156,45 @@ const MemberRegistration: React.FC<MemberRegistrationProps> = ({ onClose, onConf
 
           {/* Gender */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Gender</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Gender
+            </label>
             <select
               value={gender}
               onChange={(e) => setGender(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
               required
             >
-              <option value="" disabled>Select Gender</option>
+              <option value="" disabled>
+                Select Gender
+              </option>
               <option value="male">Male</option>
-              <option value="female">Female</option>    
+              <option value="female">Female</option>
             </select>
           </div>
 
           {/* Membership Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Membership Type</label>
-            <input
-              type="membershipType"
-              value={membership}
-              onChange={(e) => setMembershipType(e.target.value)}
+            <label className="block text-sm font-medium text-gray-700">
+              Membership Type
+            </label>
+            <select
+              name="membership"
+              id="membership"
+              defaultValue={membership}
+              onChange={(e) => setMembership(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-              required
-            />
+            >
+              <option value="Daily">Daily</option>
+              <option value="Monthly">Monthly</option>
+            </select>
           </div>
 
           {/* Date Registered */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Date Registered</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Date Registered
+            </label>
             <input
               type="date"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
@@ -181,9 +220,9 @@ const MemberRegistration: React.FC<MemberRegistrationProps> = ({ onClose, onConf
             </button>
           </div>
         </form>
+        {showReceipt && <Receipt onClose={() => setShowReceipt(false)} />}
       </div>
     </div>
-
   );
 };
 
