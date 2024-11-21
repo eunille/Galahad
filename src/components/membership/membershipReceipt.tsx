@@ -2,6 +2,8 @@ import React from "react";
 
 interface ReceiptProps {
   onClose: () => void;
+
+  
 }
 
 const Receipt: React.FC<ReceiptProps> = ({ onClose }) => {

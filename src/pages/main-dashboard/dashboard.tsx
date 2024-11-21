@@ -6,8 +6,9 @@ import MemberRegistration from "@/components/membership/membershipRegistration";
 import Receipt from "@/components/membership/membershipReceipt";
 import Purchase from "@/components/purchase/purchase";
 import MemberInformation from "@/components/membership/memberInformation";
-import UpdateMembership from "@/components/membership/updateMembership"; 
+import UpdateMembership from "@/components/membership/updateMembership";
 import dataFetch from "@/services/dataService";
+import Member from "@/models/member.d";
 
 const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,7 +17,8 @@ const Dashboard = () => {
   const [showPurchase, setShowPurchase] = useState(false);
   const [showMemberInfo, setShowMemberInfo] = useState(false);
   const [showUpdateMembership, setShowUpdateMembership] = useState(false);
-  const [members, setmembers] = useState([]);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [selectedMember, setSelectedMember] = useState<any | null>(null);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -32,7 +34,9 @@ const Dashboard = () => {
 
   const closeModal = () => setShowModal(false);
 
-  const handleConfirmRegistration = () => {
+  const handleConfirmRegistration = (newMember: any) => {
+    setMembers((prevMembers) => [...prevMembers, newMember]);
+    setSelectedMember(newMember); // Set the newly added member
     setShowModal(false);
     setShowReceipt(true);
   };
@@ -47,7 +51,8 @@ const Dashboard = () => {
 
   const closePurchaseModal = () => setShowPurchase(false);
 
-  const openMemberInfoModal = () => {
+  const openMemberInfoModal = (member: any) => {
+    setSelectedMember(member); // Set the selected member for viewing
     setShowMemberInfo(true);
     setShowModal(false);
     setShowReceipt(false);
@@ -69,7 +74,7 @@ const Dashboard = () => {
 
   const handleUpdateMembershipConfirm = () => {
     setShowUpdateMembership(false);
-    setShowReceipt(true); 
+    setShowReceipt(true);
   };
 
   useEffect(() => {
@@ -78,18 +83,16 @@ const Dashboard = () => {
       console.error("Token not found in local storage.");
       return;
     }
-    getmembers(token);
+    getMembers(token);
   }, []);
 
-  // fetch members
-  const getmembers = async (token: string) => {
+  const getMembers = async (token: string) => {
     const url = "members/";
     const method = "GET";
 
     try {
       const response = await dataFetch(url, method, {}, token);
-      console.log(response);
-      setmembers(response);
+      setMembers(response);
     } catch (error) {
       console.error("Failed to fetch members:", error);
     }
@@ -101,17 +104,25 @@ const Dashboard = () => {
     title: "text-2xl font-bold mb-4 mt-5 ml-32",
     card: "max-w-6xl mx-auto bg-white shadow-lg rounded-lg p-4 border border-black",
     searchWrapper: "flex items-center justify-between mb-6",
-    searchInput: "p-2 border rounded-md shadow-md w-64 focus:outline-none focus:ring-2 focus:ring-blue-500",
-    filterButton: "bg-white px-4 py-2 rounded-md text-gray-700 shadow-sm hover:bg-gray-100 flex items-center gap-2",
-    actionButton: "bg-black text-white px-4 py-2 rounded-md shadow-md hover:bg-gray-800 flex items-center gap-2",
-    exportButton: "bg-[#FCD301] text-black font-semibold px-4 py-2 rounded-md shadow-md border-2 border-black flex items-center gap-2",
-    tableContainer: "relative overflow-x-auto overflow-y-auto h-[70vh] scrollbar-thin scrollbar-thumb-transparent scrollbar-track-transparent",
+    searchInput:
+      "p-2 border rounded-md shadow-md w-64 focus:outline-none focus:ring-2 focus:ring-blue-500",
+    filterButton:
+      "bg-white px-4 py-2 rounded-md text-gray-700 shadow-sm hover:bg-gray-100 flex items-center gap-2",
+    actionButton:
+      "bg-black text-white px-4 py-2 rounded-md shadow-md hover:bg-gray-800 flex items-center gap-2",
+    exportButton:
+      "bg-[#FCD301] text-black font-semibold px-4 py-2 rounded-md shadow-md border-2 border-black flex items-center gap-2",
+    tableContainer:
+      "relative overflow-x-auto overflow-y-auto h-[70vh] scrollbar-thin scrollbar-thumb-transparent scrollbar-track-transparent",
     table: "min-w-full text-sm text-left text-gray-500",
-    tableHeader: "text-xs text-gray-700 uppercase bg-gray-50 border-b sticky top-0 z-10",
+    tableHeader:
+      "text-xs text-gray-700 uppercase bg-gray-50 border-b sticky top-0 z-10",
     tableRow: "bg-white border-b hover:bg-gray-100",
     tableCell: "px-5 py-4",
-    viewButton: "bg-black w-24 text-white px-4 py-2 rounded-md shadow-md hover:bg-gray-800 border border-black flex items-center gap-2",
-    purchaseButton: "bg-[#FCD301] w-24 text-black px-4 py-2 rounded-md shadow-md border-2 border-black flex items-center gap-2",
+    viewButton:
+      "bg-black w-24 text-white px-4 py-2 rounded-md shadow-md hover:bg-gray-800 border border-black flex items-center gap-2",
+    purchaseButton:
+      "bg-[#FCD301] w-24 text-black px-4 py-2 rounded-md shadow-md border-2 border-black flex items-center gap-2",
   };
 
   return (
@@ -151,10 +162,18 @@ const Dashboard = () => {
             <table className={styles.table}>
               <thead className={styles.tableHeader}>
                 <tr>
-                  <th scope="col" className={styles.tableCell}>ID</th>
-                  <th scope="col" className={styles.tableCell}>Firstname</th>
-                  <th scope="col" className={styles.tableCell}>Lastname</th>
-                  <th scope="col" className={styles.tableCell}>Membership</th>
+                  <th scope="col" className={styles.tableCell}>
+                    ID
+                  </th>
+                  <th scope="col" className={styles.tableCell}>
+                    Firstname
+                  </th>
+                  <th scope="col" className={styles.tableCell}>
+                    Lastname
+                  </th>
+                  <th scope="col" className={styles.tableCell}>
+                    Membership
+                  </th>
                   <th scope="col" className={styles.tableCell}></th>
                   <th scope="col" className={styles.tableCell}></th>
                 </tr>
@@ -162,7 +181,11 @@ const Dashboard = () => {
               <tbody>
                 {members.map((member: any, index: number) => (
                   <tr key={index} className={styles.tableRow}>
-                    <td className={`${styles.tableCell} font-medium text-gray-900 whitespace-nowrap`}>{member.id}</td>
+                    <td
+                      className={`${styles.tableCell} font-medium text-gray-900 whitespace-nowrap`}
+                    >
+                      {member.id}
+                    </td>
                     <td className={styles.tableCell}>{member.first_name}</td>
                     <td className={styles.tableCell}>{member.last_name}</td>
                     <td className={styles.tableCell}>
@@ -173,7 +196,7 @@ const Dashboard = () => {
                     <td className={styles.tableCell}>
                       <button
                         className={styles.viewButton}
-                        onClick={openMemberInfoModal}
+                        onClick={() => openMemberInfoModal(member)}
                       >
                         <FaEye />
                         View
@@ -195,23 +218,34 @@ const Dashboard = () => {
         </div>
 
         {showModal && (
-          <MemberRegistration onClose={closeModal} onConfirm={handleConfirmRegistration} />
+          <MemberRegistration
+            onClose={closeModal}
+            onConfirm={handleConfirmRegistration}
+          />
         )}
 
-        {showReceipt && <Receipt onClose={() => setShowReceipt(false)} memberData={members} />}
+        {showReceipt && <Receipt onClose={() => setShowReceipt(false)} />}
 
         {showPurchase && (
-          <Purchase onClose={closePurchaseModal} onRenew={openUpdateMembershipModal} />
+          <Purchase
+            onClose={closePurchaseModal}
+            onRenew={openUpdateMembershipModal}
+            memberData={selectedMember}
+          />
         )}
 
         {showMemberInfo && (
-          <MemberInformation onClose={closeMemberInfoModal} members={members} />
+          <MemberInformation
+            onClose={closeMemberInfoModal}
+            selectedMemberData={selectedMember}
+            onConfirm={() => {}}
+          />
         )}
 
         {showUpdateMembership && (
-          <UpdateMembership 
-            onClose={closeUpdateMembershipModal} 
-            onConfirm={handleUpdateMembershipConfirm} 
+          <UpdateMembership
+            onClose={closeUpdateMembershipModal}
+            onConfirm={handleUpdateMembershipConfirm}
           />
         )}
       </div>
