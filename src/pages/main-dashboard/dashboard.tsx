@@ -35,8 +35,10 @@ const Dashboard = () => {
   const closeModal = () => setShowModal(false);
 
   const handleConfirmRegistration = (newMember: any) => {
-    setMembers((prevMembers) => [...prevMembers, newMember]);
-    setSelectedMember(newMember); // Set the newly added member
+    const updatedMembers = [newMember, ...members]; // Add the new member to the beginning
+    setMembers(updatedMembers);
+    localStorage.setItem("members", JSON.stringify(updatedMembers));
+    setSelectedMember(newMember);
     setShowModal(false);
     setShowReceipt(true);
   };
@@ -83,7 +85,13 @@ const Dashboard = () => {
       console.error("Token not found in local storage.");
       return;
     }
-    getMembers(token);
+
+    const savedMembers = localStorage.getItem("members");
+    if (savedMembers) {
+      setMembers(JSON.parse(savedMembers));
+    } else {
+      getMembers(token);
+    }
   }, []);
 
   const getMembers = async (token: string) => {
@@ -92,7 +100,13 @@ const Dashboard = () => {
 
     try {
       const response = await dataFetch(url, method, {}, token);
-      setMembers(response);
+      const sortedMembers = response.sort(
+        (a: any, b: any) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      setMembers(sortedMembers);
+
+      localStorage.setItem("members", JSON.stringify(sortedMembers));
     } catch (error) {
       console.error("Failed to fetch members:", error);
     }
@@ -189,8 +203,16 @@ const Dashboard = () => {
                     <td className={styles.tableCell}>{member.first_name}</td>
                     <td className={styles.tableCell}>{member.last_name}</td>
                     <td className={styles.tableCell}>
-                      <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs font-semibold">
-                        Monthly
+                      <span
+                        className={`${
+                          member.membership === "Daily"
+                            ? "bg-gray-200 text-gray-700"
+                            : member.membership === "Monthly"
+                            ? "bg-gray-200 text-gray-700"
+                            : "bg-red-200 text-red-700"
+                        } px-2 py-1 rounded-full text-xs font-semibold`}
+                      >
+                        {member.membership || "Not Set"}
                       </span>
                     </td>
                     <td className={styles.tableCell}>
