@@ -1,6 +1,6 @@
-import Member from "@/models/member.d";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import dataFetch from "@/services/dataService";
+import Member from "@/models/member.d";
 
 interface MemberInformationProps {
   onClose: () => void;
@@ -14,87 +14,140 @@ const MemberInformation: React.FC<MemberInformationProps> = ({
   selectedMemberData,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  console.log(selectedMemberData);
-  const [member, setMemberData] = useState({
-    firstName: "David",
-    lastName: "Juan",
-    contactNumber: "+63",
-    emergencyNumber: "+63",
-    userID: "4907",
-    gender: "Male",
-    membership: "Monthly",
-    status: "Active",
-    birthday: "1990-01-01",
-    registeredAt: "2021-01-01",
+
+  // State to store member data
+  const [member, setMember] = useState({
+    first_name: "",
+    last_name: "",
+    contact: "",
+    emergency_contact: "",
+    birth_date: "",
+    gender: "",
+    membership: "",
+    status: "",
+    id: "",
+    purchased_at: "",
+    registered_at: "",
   });
 
-  
+  const [responseMessage, setResponseMessage] = useState("");
+  const [error, setError] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setMemberData({ ...member, [name]: value });
+  // Fetch member data via GET request
+  const fetchMemberData = async (id: number) => {
+    const url = `http://127.0.0.1:8000/api/members/${id}/`;
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Authentication token is missing!");
+      return;
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const fetchedMember = await response.json();
+        setMember(fetchedMember);
+        console.log("Member data fetched:", fetchedMember);
+      } else {
+        const errorResponse = await response.json();
+        console.error("Failed to fetch member data:", errorResponse);
+        setError(
+          errorResponse.detail || "Failed to fetch member details. Please try again."
+        );
+      }
+    } catch (error) {
+      console.error("An error occurred while fetching member data:", error);
+      setError("An unexpected error occurred.");
+    }
   };
 
+  // Function to dynamically handle changes in input fields
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setMember({ ...member, [name]: value });
+  };
+
+  // Function to check membership eligibility
   const checkEligibility = (purchased_at: string) => {
     const currDate = new Date();
     const purchaseDate = new Date(purchased_at);
     const timeDiff = currDate.getTime() - purchaseDate.getTime();
     const dayDiff = timeDiff / (1000 * 3600 * 24);
 
-    if (dayDiff <= 30) {
-      return "Active";
-    } else {
-      return "Inactive";
+    return dayDiff <= 30 ? "Active" : "Inactive";
+  };
+
+  // PUT request to update member details
+  const handleEdit = async (id: string, memberData: any) => {
+    const url = `http://127.0.0.1:8000/api/members/${id}/`;
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Authentication token is missing!");
+      return;
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(memberData),
+      });
+
+      if (response.ok) {
+        const updatedMember = await response.json();
+        console.log("Member updated successfully:", updatedMember);
+        setResponseMessage("Member updated successfully!");
+        setIsEditing(false); // Exit edit mode
+        onConfirm(updatedMember); // Pass updated data to parent
+      } else {
+        const errorResponse = await response.json();
+        console.error("Update failed:", errorResponse);
+        setError(
+          errorResponse.detail || "Failed to update member. Please try again."
+        );
+      }
+    } catch (error) {
+      console.error("An error occurred:", error);
+      setError("An unexpected error occurred.");
     }
   };
 
+  // Save button handler
   const handleSave = () => {
-    // Call onConfirm with the edited data when saving
-    onConfirm(selectedMemberData);
-    setIsEditing(false); // Exit edit mode
+    handleEdit(member.id.toString(), member);
   };
 
-  const fetchMemberData = async (Id: number) => {
-    const url = `members/${Id}/`; // Example endpoint for fetching member details
-    const method = "GET";
-    
-    try {
-      const response = await dataFetch(url, method);
-      console.log(url);
-      console.log(method);
-      localStorage.setItem("token", response.access);
-      console.log(response.access);
-    } catch (error) {
-      console.log();
-      console.log(url);
-      console.log(method);
+  // Fetch member data on component mount or when selectedMemberData changes
+  useEffect(() => {
+    if (selectedMemberData.id) {
+      fetchMemberData(selectedMemberData.id);
     }
-  };
+  }, [selectedMemberData]);
 
-  const handleEdit = async (Id: number) => {
-    const url = `members/${Id}/`; // Endpoint for updating member details
-    const method = "PUT";
-  
-    try {
-      const response = await dataFetch(url, method);
-      console.log(url);
-      console.log(method);
-
-      console.log(response.access);
-    } catch (error) {
-      console.log();
-      console.log(url);
-      console.log(method);
-    }
-  };
-  
-  
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white rounded-lg p-8 w-full max-w-lg shadow-lg relative">
         <h2 className="text-2xl font-semibold text-center mb-6">
           Member Information
         </h2>
+
+        {error && <div className="text-red-500 text-center mb-4">{error}</div>}
+        {responseMessage && (
+          <div className="text-green-500 text-center mb-4">
+            {responseMessage}
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -103,14 +156,14 @@ const MemberInformation: React.FC<MemberInformationProps> = ({
             </label>
             {isEditing ? (
               <input
-                name="firstName"
-                value={selectedMemberData.first_name}
+                name="first_name"
+                value={member.first_name || ""}
                 onChange={handleChange}
                 className="w-full rounded-md border-gray-300 shadow-sm"
               />
             ) : (
               <span className="block p-2 border rounded-md">
-                {selectedMemberData.first_name}
+                {member.first_name}
               </span>
             )}
           </div>
@@ -121,14 +174,14 @@ const MemberInformation: React.FC<MemberInformationProps> = ({
             </label>
             {isEditing ? (
               <input
-                name="lastName"
-                value={selectedMemberData.last_name}
+                name="last_name"
+                value={member.last_name || ""}
                 onChange={handleChange}
                 className="w-full rounded-md border-gray-300 shadow-sm"
               />
             ) : (
               <span className="block p-2 border rounded-md">
-                {selectedMemberData.last_name}
+                {member.last_name}
               </span>
             )}
           </div>
@@ -138,38 +191,33 @@ const MemberInformation: React.FC<MemberInformationProps> = ({
             </label>
             {isEditing ? (
               <input
-                name="contactNumber"
-                value={selectedMemberData.contact}
+                name="contact"
+                value={member.contact || ""}
                 onChange={handleChange}
                 className="w-full rounded-md border-gray-300 shadow-sm"
               />
             ) : (
-              <span className="block p-2 border rounded-md">
-                {selectedMemberData.contact}
-              </span>
+              <span className="block p-2 border rounded-md">{member.contact}</span>
             )}
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Emergency Number
             </label>
             {isEditing ? (
               <input
-                name="emergencyNumber"
-                value={selectedMemberData.emergency_contact}
+                name="emergency_contact"
+                value={member.emergency_contact || ""}
                 onChange={handleChange}
                 className="w-full rounded-md border-gray-300 shadow-sm"
               />
             ) : (
               <span className="block p-2 border rounded-md">
-                {selectedMemberData.emergency_contact}
+                {member.emergency_contact}
               </span>
             )}
           </div>
-
-          <div className="col-span-2 grid grid-cols-2 gap-4">
-            <div>
+          <div>
               <label className="block text-sm font-medium text-gray-700">
                 Birthday
               </label>
@@ -177,7 +225,7 @@ const MemberInformation: React.FC<MemberInformationProps> = ({
                 {selectedMemberData.birth_date}
               </span>
             </div>
-          <div>
+            <div>
             <label className="block text-sm font-medium text-gray-700">
               Gender
             </label>
@@ -185,15 +233,18 @@ const MemberInformation: React.FC<MemberInformationProps> = ({
               {selectedMemberData.gender}
             </span>
           </div>
+
+
+
           <div>
             <label className="block text-sm font-medium text-gray-700">
               User ID
             </label>
-            <span className="block p-2 border rounded-md">
-              {selectedMemberData.id}
-            </span>
+            <span className="block p-2 border rounded-md">{member.id}</span>
           </div>
-            <div>
+
+          <div>
+          <div>
               <label className="block text-sm font-medium text-gray-700">
                 Membership
               </label>
@@ -201,7 +252,7 @@ const MemberInformation: React.FC<MemberInformationProps> = ({
                 {selectedMemberData.membership === 1 ? "Monthly" : "Daily"}
               </span>
             </div>
-          </div>
+            </div>
 
           <div className="col-span-2 grid grid-cols-2 gap-4">
             <div>
@@ -216,29 +267,19 @@ const MemberInformation: React.FC<MemberInformationProps> = ({
                 }`}
               ></span>
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Date Registered
-              </label>
-              {isEditing ? (
-                <input
-                  name="registered_at"
-                  value={selectedMemberData.registered_at}
-                  onChange={handleChange}
-                  className="w-full rounded-md border-gray-300 shadow-sm"
-                />
-              ) : (
-                <span className="block p-2 border rounded-md">
-                  {selectedMemberData.registered_at}
-                </span>
-              )}
-            </div>
+            <label className="block text-sm font-medium text-gray-700">
+              Date Registered
+            </label>
+            <span className="block p-2 border rounded-md">
+              {selectedMemberData.registered_at}
+            </span>
+          </div>
           </div>
         </div>
         <div className="flex justify-center mt-6 space-x-32">
           <button
-            onClick={isEditing ? handleSave : () => handleEdit(selectedMemberData.id)}
+            onClick={isEditing ? handleSave : () => setIsEditing(true)}
             className="px-6 py-2 w-32 text-black bg-[#FCD301] rounded-md shadow-md border-2 border-black"
           >
             {isEditing ? "Save" : "Edit"}
@@ -248,7 +289,7 @@ const MemberInformation: React.FC<MemberInformationProps> = ({
             onClick={onClose}
             className="px-6 py-2 w-32 text-white bg-red-400 rounded-md shadow-md hover:bg-red-500"
           >
-            Cancel
+            Close
           </button>
         </div>
       </div>

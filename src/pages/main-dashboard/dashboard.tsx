@@ -1,4 +1,3 @@
-// src/pages/dashboard/Dashboard.tsx
 import React, { useEffect, useState } from "react";
 import { FaFilter, FaUserPlus, FaFileExport, FaEye } from "react-icons/fa";
 import Sidebar from "@/components/ui/sidebar";
@@ -260,7 +259,15 @@ const Dashboard = () => {
           <MemberInformation
             onClose={closeMemberInfoModal}
             selectedMemberData={selectedMember}
-            onConfirm={() => {}}
+            onConfirm={(updatedMember: any) => {
+              // Update the member in the list
+              setMembers((prevMembers) =>
+                prevMembers.map((member) =>
+                  member.id === updatedMember.id ? updatedMember : member
+                )
+              );
+              closeMemberInfoModal(); // Close the modal after saving
+            }}
           />
         )}
 
