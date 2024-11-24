@@ -233,9 +233,6 @@ const MemberInformation: React.FC<MemberInformationProps> = ({
               {selectedMemberData.gender}
             </span>
           </div>
-
-
-
           <div>
             <label className="block text-sm font-medium text-gray-700">
               User ID
@@ -272,7 +269,7 @@ const MemberInformation: React.FC<MemberInformationProps> = ({
               Date Registered
             </label>
             <span className="block p-2 border rounded-md">
-              {selectedMemberData.registered_at}
+              {new Date(selectedMemberData.registered_at).toLocaleDateString()}
             </span>
           </div>
           </div>
