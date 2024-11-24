@@ -8,4 +8,6 @@ export default interface Member {
   emergency_contact: string;
   membership: number;
   registered_at: string;
+  status: string;
+  purchased_at: string;
 }

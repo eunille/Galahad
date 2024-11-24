@@ -19,7 +19,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/productsInventory" element={<ProductsInventory />} />
-        <Route path="/editProducts" element={<EditProducts />} />
+        <Route path="/editProducts" element={<EditProducts closeModal={() => { /* implement close modal functionality */ }} />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="*" element={<WarningPage />} />
 
