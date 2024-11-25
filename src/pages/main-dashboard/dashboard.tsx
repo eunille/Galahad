@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaFilter, FaUserPlus, FaFileExport, FaEye } from "react-icons/fa";
+import { FaUserPlus, FaFileExport, FaEye } from "react-icons/fa";
 import Sidebar from "@/components/ui/sidebar";
 import MemberRegistration from "@/components/membership/membershipRegistration";
 import Receipt from "@/components/membership/membershipReceipt";
@@ -16,11 +16,45 @@ const Dashboard = () => {
   const [showPurchase, setShowPurchase] = useState(false);
   const [showMemberInfo, setShowMemberInfo] = useState(false);
   const [showUpdateMembership, setShowUpdateMembership] = useState(false);
-  const [members, setMembers] = useState<Member[]>([]);
+  const [members, setMembers] = useState<Member[]>([]); // Displayed members based on search
   const [selectedMember, setSelectedMember] = useState<any | null>(null);
+  const [allMembers, setAllMembers] = useState<Member[]>([]); // Full list of members
+  const [membershipFilter, setMembershipFilter] = useState<string>(""); // For membership filter (Daily or Monthly)
 
+  
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+    const term = e.target.value; 
+    setSearchTerm(term);
+    filterMembers(term, membershipFilter);
+  };
+
+  const handleFilterByMembership = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedType = event.target.value;
+    setMembershipFilter(selectedType);
+
+    filterMembers(searchTerm, selectedType);
+  };
+
+    const filterMembers = (searchTerm: string, membershipType: string) => {
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+
+  
+      const filtered = allMembers.filter((member) => {
+      const fullName = `${member.first_name} ${member.last_name}`.toLowerCase();
+      const matchesSearch =
+        fullName.includes(lowerCaseSearchTerm) ||
+        member.id.toString().includes(lowerCaseSearchTerm) ||
+        member.first_name.toLowerCase().includes(lowerCaseSearchTerm) ||
+        member.last_name.toLowerCase().includes(lowerCaseSearchTerm);
+
+      // Filter by membership if a membership type is selected
+      const matchesMembership =
+        membershipType === "" || String(member.membership) === membershipType;
+
+      return matchesSearch && matchesMembership;
+    });
+
+    setMembers(filtered); // Update the displayed list
   };
 
   const openModal = () => {
@@ -34,7 +68,7 @@ const Dashboard = () => {
   const closeModal = () => setShowModal(false);
 
   const handleConfirmRegistration = (newMember: any) => {
-    const updatedMembers = [newMember, ...members]; // Add the new member to the beginning
+    const updatedMembers = [newMember, ...members]; 
     setMembers(updatedMembers);
     localStorage.setItem("members", JSON.stringify(updatedMembers));
     setSelectedMember(newMember);
@@ -53,7 +87,7 @@ const Dashboard = () => {
   const closePurchaseModal = () => setShowPurchase(false);
 
   const openMemberInfoModal = (member: any) => {
-    setSelectedMember(member); // Set the selected member for viewing
+    setSelectedMember(member); 
     setShowMemberInfo(true);
     setShowModal(false);
     setShowReceipt(false);
@@ -87,7 +121,9 @@ const Dashboard = () => {
 
     const savedMembers = localStorage.getItem("members");
     if (savedMembers) {
-      setMembers(JSON.parse(savedMembers));
+      const parsedMembers = JSON.parse(savedMembers);
+      setMembers(parsedMembers); 
+      setAllMembers(parsedMembers); 
     } else {
       getMembers(token);
     }
@@ -104,7 +140,7 @@ const Dashboard = () => {
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
       setMembers(sortedMembers);
-
+      setAllMembers(sortedMembers); 
       localStorage.setItem("members", JSON.stringify(sortedMembers));
     } catch (error) {
       console.error("Failed to fetch members:", error);
@@ -119,8 +155,8 @@ const Dashboard = () => {
     searchWrapper: "flex items-center justify-between mb-6",
     searchInput:
       "p-2 border rounded-md shadow-md w-64 focus:outline-none focus:ring-2 focus:ring-blue-500",
-    filterButton:
-      "bg-white px-4 py-2 rounded-md text-gray-700 shadow-sm hover:bg-gray-100 flex items-center gap-2",
+    filterSelect:
+      "p-2 border rounded-md shadow-md w-35 focus:outline-none focus:ring-2 focus:ring-blue-500",
     actionButton:
       "bg-black text-white px-4 py-2 rounded-md shadow-md hover:bg-gray-800 flex items-center gap-2",
     exportButton:
@@ -150,14 +186,19 @@ const Dashboard = () => {
               <input
                 type="text"
                 value={searchTerm}
-                onChange={handleSearchChange}
-                placeholder="Search..."
+                onChange={handleSearchChange} 
+                placeholder="Search by Name or ID"
                 className={styles.searchInput}
               />
-              <button className={styles.filterButton}>
-                <FaFilter />
-                Filter
-              </button>
+              <select
+                value={membershipFilter}
+                onChange={handleFilterByMembership}
+                className={styles.filterSelect}
+              >
+                <option value="">All Members</option>
+                <option value="Daily">Daily</option>
+                <option value="Monthly">Monthly</option>
+              </select>
             </div>
             <div className="flex space-x-2">
               <button onClick={openModal} className={styles.actionButton}>
@@ -166,7 +207,7 @@ const Dashboard = () => {
               </button>
               <button className={styles.exportButton}>
                 <FaFileExport />
-                Export Excel
+                Export
               </button>
             </div>
           </div>
@@ -192,21 +233,17 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {members.map((member: any, index: number) => (
-                  <tr key={index} className={styles.tableRow}>
-                    <td
-                      className={`${styles.tableCell} font-medium text-gray-900 whitespace-nowrap`}
-                    >
-                      {member.id}
-                    </td>
+                {members.map((member) => (
+                  <tr key={member.id} className={styles.tableRow}>
+                    <td className={styles.tableCell}>{member.id}</td>
                     <td className={styles.tableCell}>{member.first_name}</td>
                     <td className={styles.tableCell}>{member.last_name}</td>
                     <td className={styles.tableCell}>
                       <span
                         className={`${
-                          member.membership === "Daily"
+                          String(member.membership) === "Daily"
                             ? "bg-gray-200 text-gray-700"
-                            : member.membership === "Monthly"
+                            : String(member.membership) === "Monthly"
                             ? "bg-gray-200 text-gray-700"
                             : "bg-red-200 text-red-700"
                         } px-2 py-1 rounded-full text-xs font-semibold`}
@@ -260,13 +297,12 @@ const Dashboard = () => {
             onClose={closeMemberInfoModal}
             selectedMemberData={selectedMember}
             onConfirm={(updatedMember: any) => {
-              // Update the member in the list
               setMembers((prevMembers) =>
                 prevMembers.map((member) =>
                   member.id === updatedMember.id ? updatedMember : member
                 )
               );
-              closeMemberInfoModal(); // Close the modal after saving
+              closeMemberInfoModal();
             }}
           />
         )}
