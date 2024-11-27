@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import App from './App';
 import Login from './pages/login/login';
 import Dashboard from './pages/main-dashboard/dashboard'; 
@@ -15,14 +15,14 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />} />
+        {/* Redirect "/" to "/login" */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/productsInventory" element={<ProductsInventory />} />
-        <Route path="/editProducts" element={<EditProducts closeModal={() => { /* implement close modal functionality */ }} />} />
+        
         <Route path="/reports" element={<Reports />} />
         <Route path="*" element={<WarningPage />} />
-
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

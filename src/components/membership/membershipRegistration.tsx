@@ -187,21 +187,7 @@ const MemberRegistration: React.FC<MemberRegistrationProps> = ({
             )}
           </div>
 
-          {/* Birthday */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Birthday
-            </label>
-            <input
-              type="date"
-              value={birth_date}
-              onChange={(e) => setBirthday(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-            />
-            {validationErrors.birth_date && (
-              <p className="text-red-500 text-sm mt-1">{validationErrors.birth_date}</p>
-            )}
-          </div>
+          
 
           {/* Gender */}
           <div>
@@ -245,6 +231,22 @@ const MemberRegistration: React.FC<MemberRegistrationProps> = ({
             )}
           </div>
 
+           {/* Birthday */}
+           <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Birthday
+            </label>
+            <input
+              type="date"
+              value={birth_date}
+              onChange={(e) => setBirthday(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            />
+            {validationErrors.birth_date && (
+              <p className="text-red-500 text-sm mt-1">{validationErrors.birth_date}</p>
+            )}
+          </div>
+
           {/* Date Registered */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -260,6 +262,8 @@ const MemberRegistration: React.FC<MemberRegistrationProps> = ({
               <p className="text-red-500 text-sm mt-1">{validationErrors.registered_at}</p>
             )}
           </div>
+
+         
         </form>
 
         <div className="col-span-2 flex justify-center mt-6 space-x-28">

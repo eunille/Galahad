@@ -8,8 +8,10 @@ import MemberInformation from "@/components/membership/memberInformation";
 import UpdateMembership from "@/components/membership/updateMembership";
 import dataFetch from "@/services/dataService";
 import Member from "@/models/member.d";
+import Successful from "@/components/ui/popups/successful"; // Adjust path as needed
 
 const Dashboard = () => {
+  const [showSuccess, setShowSuccess] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
@@ -74,6 +76,15 @@ const Dashboard = () => {
     setSelectedMember(newMember);
     setShowModal(false);
     setShowReceipt(true);
+
+    setShowSuccess(true);
+    // Show success popup
+  
+  
+  // Reset showSuccess state after 3 seconds
+  setTimeout(() => {
+    setShowSuccess(false);
+  }, 3000); // 3 seconds delay to hide the success popup
   };
 
   const openPurchaseModal = () => {
@@ -149,9 +160,9 @@ const Dashboard = () => {
 
   const styles = {
     container: "flex h-screen",
-    content: "flex-1 p-6 bg-gray-100 overflow-hidden ml-60",
+    content: "flex-1 p-6 bg-gray-50 overflow-hidden ml-60",
     title: "text-2xl font-bold mb-4 mt-5 ml-32",
-    card: "max-w-6xl mx-auto bg-white shadow-lg rounded-lg p-4 border border-black",
+    card: "max-w-6xl mx-auto bg-white shadow-lg rounded-lg p-4 border border-black mt-16",
     searchWrapper: "flex items-center justify-between mb-6",
     searchInput:
       "p-2 border rounded-md shadow-md w-64 focus:outline-none focus:ring-2 focus:ring-blue-500",
@@ -178,7 +189,8 @@ const Dashboard = () => {
     <div className={styles.container}>
       <Sidebar />
       <div className={styles.content}>
-        <h2 className={styles.title}>Dashboard</h2>
+      {showSuccess && <Successful />}
+       
 
         <div className={styles.card}>
           <div className={styles.searchWrapper}>
@@ -200,15 +212,12 @@ const Dashboard = () => {
                 <option value="Monthly">Monthly</option>
               </select>
             </div>
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 mr-2">
               <button onClick={openModal} className={styles.actionButton}>
                 <FaUserPlus />
                 Add Member
               </button>
-              <button className={styles.exportButton}>
-                <FaFileExport />
-                Export
-              </button>
+              
             </div>
           </div>
 
