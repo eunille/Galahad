@@ -49,7 +49,7 @@ const Dashboard = () => {
 
       // Filter by membership if a membership type is selected
       const matchesMembership =
-        membershipType === "" || String(member.membership) === membershipType;
+        membershipType === "" || String(member.membership_type) === membershipType;
 
       return matchesSearch && matchesMembership;
     });
@@ -139,9 +139,9 @@ const Dashboard = () => {
         (a: any, b: any) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
+      console.log(response)
       setMembers(sortedMembers);
       setAllMembers(sortedMembers); 
-      localStorage.setItem("members", JSON.stringify(sortedMembers));
     } catch (error) {
       console.error("Failed to fetch members:", error);
     }
@@ -239,16 +239,8 @@ const Dashboard = () => {
                     <td className={styles.tableCell}>{member.first_name}</td>
                     <td className={styles.tableCell}>{member.last_name}</td>
                     <td className={styles.tableCell}>
-                      <span
-                        className={`${
-                          String(member.membership) === "Daily"
-                            ? "bg-gray-200 text-gray-700"
-                            : String(member.membership) === "Monthly"
-                            ? "bg-gray-200 text-gray-700"
-                            : "bg-red-200 text-red-700"
-                        } px-2 py-1 rounded-full text-xs font-semibold`}
-                      >
-                        {member.membership || "Not Set"}
+                      <span>{member.membership_type || "not set"}
+                      
                       </span>
                     </td>
                     <td className={styles.tableCell}>

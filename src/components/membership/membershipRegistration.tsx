@@ -5,11 +5,13 @@ import Receipt from "./membershipReceipt";
 interface MemberRegistrationProps {
   onClose: () => void;
   onConfirm: (memberData: any) => void;
+  onUpdate: () => void;
 }
 
 const MemberRegistration: React.FC<MemberRegistrationProps> = ({
   onClose,
   onConfirm,
+  onUpdate,
 }) => {
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
@@ -95,6 +97,8 @@ const MemberRegistration: React.FC<MemberRegistrationProps> = ({
           membership,
           registered_at,
         });
+
+        onUpdate()
 
         // Reset form and close modal
         setFirstName("");
@@ -237,8 +241,8 @@ const MemberRegistration: React.FC<MemberRegistrationProps> = ({
               <option value="" disabled>
                 Membership Type
               </option>
-              <option value="Daily">Daily</option>
-              <option value="Monthly">Monthly</option>
+              <option value="2">Daily</option>
+              <option value="3">Monthly</option>
             </select>
             {validationErrors.membership && (
               <p className="text-red-500 text-sm mt-1">{validationErrors.membership}</p>

@@ -10,10 +10,12 @@ import ProductsInventory from './pages/product/productsInventory';
 
 import EditProducts from './components/products/editProducts';
 import Reports from './pages/analytics/reports';
+import {AuthProvider} from "@/services/authcontext"
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <BrowserRouter>
+    <AuthProvider>
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />
@@ -24,6 +26,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
         <Route path="*" element={<WarningPage />} />
 
       </Routes>
+    </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

@@ -1,10 +1,11 @@
+import dataFetch from "@/services/dataService";
+import { decodeToken } from "@/services/decode";
 import { createContext, ReactNode, useContext, useState } from "react";
 import { useNavigate } from "react-router";
-import dataFetch from "./dataService";
 
 interface AuthContextType {
   token: string | null;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
   success: boolean;
   id: number;
@@ -23,18 +24,21 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const initialToken = sessionStorage.getItem("token");
-  
-  // No need to decode the token to get the user_id anymore
+  const initialId = initialToken ? decodeToken(initialToken)?.user_id : 0;
+
   const [token, setToken] = useState(initialToken);
-  const [id, setId] = useState<number>(0); // Default to 0, no user ID logic
-  
+  const [id, setId] = useState<number>(initialId!);
+
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const login = async (username: string, password: string) => {
+  const login = async (
+    username: string,
+    password: string
+  ): Promise<boolean> => {
     const payload = { username, password };
-    setError(null); // Reset error state on each login attempt
+    setError(null);
 
     try {
       console.log("Sending login payload:", payload);
@@ -49,26 +53,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error("Token not found in response");
       }
 
-      // Set token and save it in session storage
+      const decodedToken = decodeToken(token);
+      const userId = decodedToken?.user_id;
+
+      if (!userId) {
+        throw new Error("User ID not found in token");
+      }
+
+      setId(userId);
       setToken(token);
       sessionStorage.setItem("token", token);
-
-      // If user ID extraction is not necessary, you can remove this logic
-      setId(1); // You can adjust or remove this line based on your needs
-      
       setSuccess(true);
+      return true;
     } catch (err) {
       console.error("Error during login:", err);
       setSuccess(false);
       setError("Login failed. Please check your username and password.");
+      return false;
     }
   };
 
   const logout = () => {
     setToken(null);
     sessionStorage.removeItem("token");
-    setSuccess(false); // Reset success state on logout
-    setId(0); // Reset id on logout
+    setSuccess(false);
+    setId(0);
     navigate("/login");
   };
 
