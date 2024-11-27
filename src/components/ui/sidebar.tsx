@@ -41,12 +41,12 @@ const Sidebar = () => {
           <div>
             <div className="flex flex-col items-center mb-8">
               <img
-                className="w-20 h-20 mb-4 rounded-full shadow-lg"
+                className="w-24 h-24 mb-4 rounded-full shadow-lg"
                 src="../src/assets/img/logo/gym-logo.png"
                 alt="Gym Logo"
               />
               <span className="text-xl font-semibold text-gray-900">
-                AE Gym Flow
+                AE Gym 
               </span>
             </div>
             {/* Navigation Items */}
@@ -70,7 +70,7 @@ const Sidebar = () => {
                   >
                     <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
                   </svg>
-                  <span className="ms-3 font-medium">Main Dashboard</span>
+                  <span className="ms-3 font-medium">Membership</span>
                 </Link>
               </li>
               {/* Analytics */}
@@ -114,7 +114,7 @@ const Sidebar = () => {
                   >
                     <path d="M20 6H4C3.44772 6 3 6.44772 3 7V20C3 20.5523 3.44772 21 4 21H20C20.5523 21 21 20.5523 21 20V7C21 6.44772 20.5523 6 20 6ZM19 19H5V8H19V19Z" />
                   </svg>
-                  <span className="ms-3 font-medium">Pricing</span>
+                  <span className="ms-3 font-medium">Products</span>
                 </Link>
               </li>
             </ul>

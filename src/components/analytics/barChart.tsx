@@ -19,11 +19,11 @@ import {
 
 // Chart data and configuration
 const chartData = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 187, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 90, fill: "var(--color-other)" },
+  { browser: "Members", visitors: 275, fill: "var(--color-Members)" },
+  { browser: "Service", visitors: 200, fill: "var(--color-Service)" },
+  { browser: "Products", visitors: 187, fill: "var(--color-Products)" },
+  { browser: "Membership", visitors: 173, fill: "var(--color-Membership)" },
+  
 ]
 
 const chartConfig = {
@@ -31,19 +31,19 @@ const chartConfig = {
     label: "Visitors",
   },
   chrome: {
-    label: "Chrome",
+    label: "Members",
     color: "hsl(var(--chart-1))",
   },
   safari: {
-    label: "Safari",
+    label: "Service",
     color: "hsl(var(--chart-2))",
   },
   firefox: {
-    label: "Firefox",
+    label: "Products",
     color: "hsl(var(--chart-3))",
   },
   edge: {
-    label: "Edge",
+    label: "Membership",
     color: "hsl(var(--chart-4))",
   },
   other: {
